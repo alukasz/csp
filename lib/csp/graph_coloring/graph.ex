@@ -50,6 +50,12 @@ defmodule CSP.GraphColoring.Graph do
       {row * size + col, size + row * size + col}
     end
     edges = hor ++ ver
+    |> Enum.sort(fn {f1, f2}, {s1, s2} ->
+      case f1 == s1 do
+        false -> f1 < s1
+        true -> f2 < s2
+      end
+    end)
 
     %Graph{graph | edges: edges}
   end
