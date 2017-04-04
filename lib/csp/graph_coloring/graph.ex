@@ -20,7 +20,10 @@ defmodule CSP.GraphColoring.Graph do
       end)
   end
   def valid?(%Graph{vertices: vertices, edges: edges}) do
-    do_valid(vertices, edges, MapSet.new, 0)
+    case do_valid(vertices, edges, MapSet.new, 0) do
+      true  -> {:ok, :valid}
+      false -> {:error, :invalid}
+    end
   end
 
   defp do_valid(_, [], pairs, constraints) do

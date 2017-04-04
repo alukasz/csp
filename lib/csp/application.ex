@@ -8,6 +8,5 @@ defmodule CSP.Application do
     {opts, _, _} = OptionParser.parse(args, switches: [size: :integer, print: :boolean])
 
     {_, graph} = Backtracking.solve(Graph.new(opts[:size]), opts[:print])
-    Graph.print(graph)
   end
 end
