@@ -7,7 +7,8 @@ defmodule CSP.Mixfile do
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps()]
+     deps: deps(),
+     escript: escript()]
   end
 
   # Configuration for the OTP application
@@ -15,8 +16,11 @@ defmodule CSP.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger],
-     mod: {CSP.Application, []}]
+    [extra_applications: [:logger]]
+  end
+
+  def escript do
+    [main_module: CSP.Application]
   end
 
   # Dependencies can be Hex packages:

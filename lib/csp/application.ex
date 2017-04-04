@@ -1,22 +1,13 @@
 defmodule CSP.Application do
-  # See http://elixir-lang.org/docs/stable/elixir/Application.html
-  # for more information on OTP Applications
   @moduledoc false
 
-  use Application
+  alias CSP.GraphColoring.Backtracking
+  alias CSP.GraphColoring.Graph
 
-  def start(_type, _args) do
-    import Supervisor.Spec, warn: false
+  def main(args \\ []) do
+    {opts, _, _} = OptionParser.parse(args, switches: [size: :integer, print: :boolean])
 
-    # Define workers and child supervisors to be supervised
-    children = [
-      # Starts a worker by calling: CSP.Worker.start_link(arg1, arg2, arg3)
-      # worker(CSP.Worker, [arg1, arg2, arg3]),
-    ]
-
-    # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: CSP.Supervisor]
-    Supervisor.start_link(children, opts)
+    {_, graph} = Backtracking.solve(Graph.new(opts[:size]), opts[:print])
+    Graph.print(graph)
   end
 end
