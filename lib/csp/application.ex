@@ -7,12 +7,18 @@ defmodule CSP.Application do
   alias CSP.GraphColoring.Graph
 
   def main(args \\ []) do
-    {opts, _, _} = OptionParser.parse(args, switches: [size: :integer, print: :boolean])
+    switches = [switches: [size: :integer, print: :boolean, interval: :integer]]
+    {opts, _, _} = OptionParser.parse(args, switches)
 
     Counter.start_link(:calls)
     Counter.start_link(:solutions)
 
-    GossipGirl.start_link([:calls, :solutions], 5000)
+    interval = case opts[:interval] do
+                 nil -> 5000
+                 val -> val * 1000
+               end
+
+    GossipGirl.start_link([:calls, :solutions], interval)
 
     Backtracking.solve(Graph.new(opts[:size]), opts[:print])
 
