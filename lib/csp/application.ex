@@ -4,14 +4,19 @@ defmodule CSP.Application do
   alias CSP.Counter
   alias CSP.GossipGirl
   alias CSP.GraphColoring.Backtracking
+  alias CSP.GraphColoring.ForwardChecking
   alias CSP.GraphColoring.Graph
 
   def main(args \\ []) do
-    switches = [switches: [size: :integer, print: :boolean, interval: :integer]]
+    switches = [switches: [alg: :string, size: :integer, print: :boolean, interval: :integer]]
     {opts, _, _} = OptionParser.parse(args, switches)
 
     start_monitoring(opts)
-    Backtracking.solve(Graph.new(opts[:size]), opts[:print])
+
+    case opts[:alg] do
+      "bt" -> Backtracking.solve(Graph.new(opts[:size]), opts[:print])
+      "fc" -> ForwardChecking.solve(Graph.new(opts[:size], true), opts[:print])
+    end
 
     IO.puts "Visited #{Counter.get(:calls)} nodes"
     IO.puts "Found #{Counter.get(:solutions)} solutions"

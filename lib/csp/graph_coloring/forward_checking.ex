@@ -1,4 +1,4 @@
-defmodule CSP.GraphColoring.Backtracking do
+defmodule CSP.GraphColoring.ForwardChecking do
   alias CSP.Counter
   alias CSP.GraphColoring.Graph
 
@@ -17,6 +17,7 @@ defmodule CSP.GraphColoring.Backtracking do
       {:error, :all_fulfilled} ->
         Counter.increment(:solutions)
       if print do
+        IO.inspect graph
         Graph.print(graph)
         IO.puts "-------------------"
       end
@@ -26,9 +27,12 @@ defmodule CSP.GraphColoring.Backtracking do
     end
   end
 
-  defp increment_vertex(%Graph{vertices: vertices, colors: colors} = graph, vertex, print) do
-    Enum.any? 1..colors, fn color ->
+  defp increment_vertex(%Graph{vertices: vertices, allowed_colors: colors} = graph, vertex, print) do
+    Enum.any? Map.get(colors, vertex), fn color ->
       graph = %Graph{graph | vertices: put_elem(vertices, vertex, color)}
+      graph = Enum.reduce(Graph.find_neighbours(graph, vertex), graph, fn vertex, graph ->
+        Graph.remove_allowed_color(graph, vertex, color)
+      end)
       {result, _} = do_solve(graph, print)
       result == :ok
     end

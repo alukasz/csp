@@ -1,13 +1,14 @@
 defmodule CSP.GraphColoring.Graph do
   alias CSP.GraphColoring.Graph
 
-  defstruct vertices: nil, edges: [], size: 0, colors: 0
+  defstruct vertices: nil, edges: [], allowed_colors: %{}, size: 0, colors: 0
 
-  def new(size) do
+  def new(size, allowed_colors \\ false) do
     %Graph{size: size}
     |> build_vertices
     |> build_edges
     |> set_possible_colors
+    |> build_allowed_colors(allowed_colors)
   end
 
   def print(%Graph{vertices: vertices, size: size}) do
@@ -27,6 +28,27 @@ defmodule CSP.GraphColoring.Graph do
     end
   end
 
+  def remove_allowed_color(%Graph{allowed_colors: allowed_colors} = graph, vertex, color) do
+    allowed_colors = Map.update!(allowed_colors, vertex, fn colors ->
+      MapSet.delete(colors, color)
+    end)
+
+    %Graph{graph | allowed_colors: allowed_colors}
+  end
+
+  def find_neighbours(%Graph{edges: edges}, vertex) do
+    do_find_neighbours(edges, vertex)
+  end
+
+  defp do_find_neighbours([], vertex), do: []
+  defp do_find_neighbours([edge | edges], vertex) do
+    case edge do
+      {other, ^vertex} -> [other | do_find_neighbours(edges, vertex)]
+      {^vertex, other} -> [other | do_find_neighbours(edges, vertex)]
+      _ -> do_find_neighbours(edges, vertex)
+    end
+  end
+
   defp do_valid(_, [], pairs, constraints) do
     MapSet.size(pairs) == constraints
   end
@@ -41,9 +63,7 @@ defmodule CSP.GraphColoring.Graph do
   end
 
   defp build_vertices(%Graph{size: size} = graph) do
-    vertices = for _ <- 1..(size * size), do: nil
-
-    %Graph{graph | vertices: List.to_tuple(vertices)}
+    %Graph{graph | vertices: Tuple.duplicate(nil, size * size)}
   end
 
   defp build_edges(%Graph{size: size} = graph) do
@@ -71,5 +91,14 @@ defmodule CSP.GraphColoring.Graph do
              end
 
     %Graph{graph | colors: colors}
+  end
+
+  defp build_allowed_colors(graph, false), do: graph
+  defp build_allowed_colors(%Graph{colors: colors, vertices: vertices} = graph, true) do
+    allowed_colors = 1..tuple_size(vertices)
+    |> Enum.map(fn vertex -> {vertex - 1, Enum.into(1..colors, MapSet.new)} end)
+    |> Enum.into(%{})
+
+    %Graph{graph | allowed_colors: allowed_colors}
   end
 end
