@@ -19,6 +19,7 @@ defmodule CSP.GraphColoring.Graph do
       IO.puts ""
       end)
   end
+
   def valid?(%Graph{vertices: vertices, edges: edges}) do
     case do_valid(vertices, edges, MapSet.new, 0) do
       true  -> {:ok, :valid}

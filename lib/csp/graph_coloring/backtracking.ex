@@ -1,4 +1,5 @@
 defmodule CSP.GraphColoring.Backtracking do
+  alias CSP.Counter
   alias CSP.GraphColoring.Graph
 
   def solve(graph, print) do
@@ -6,10 +7,11 @@ defmodule CSP.GraphColoring.Backtracking do
   end
 
   defp do_solve(%Graph{} = graph, print) do
-    if print do
-      Graph.print(graph)
-      IO.puts "-------------------"
-    end
+    Counter.increment(:calls)
+    # if print do
+      # Graph.print(graph)
+      # IO.puts "-------------------"
+    # end
     with {:ok, :valid} <- Graph.valid?(graph),
          {:ok, vertex} <- find_first_empty(graph),
          true <- increment_vertex(graph, vertex, print)
@@ -17,8 +19,12 @@ defmodule CSP.GraphColoring.Backtracking do
       {:ok, graph}
     else
       {:error, :all_fulfilled} ->
+        Counter.increment(:solutions)
+      if print do
         Graph.print(graph)
-        {:ok, graph}
+        IO.puts "-------------------"
+      end
+        {:error, graph}
       _ ->
         {:error, graph}
     end
