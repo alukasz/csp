@@ -2,43 +2,34 @@ defmodule CSP.GraphColoring.Backtracking do
   alias CSP.Counter
   alias CSP.GraphColoring.Graph
 
-  def solve(graph, print) do
-    do_solve(graph, print)
-  end
-
-  defp do_solve(%Graph{} = graph, print) do
+  def solve(graph) do
     Counter.increment(:calls)
-    with {:ok, :valid} <- Graph.valid?(graph),
+
+    with true <- Graph.valid?(graph),
          {:ok, vertex} <- find_first_empty(graph),
-         true <- increment_vertex(graph, vertex, print)
+         true <- place(graph, vertex, 1)
     do
-      {:ok, graph}
+      true
     else
-      {:error, :all_fulfilled} ->
-        Counter.increment(:solutions)
-      if print do
-        Graph.print(graph)
-        IO.puts "-------------------"
-      end
-        {:error, graph}
-      _ ->
-        {:error, graph}
+      {:error, :filled} -> Counter.increment(:solutions); false
+      _ -> false
     end
   end
 
-  defp increment_vertex(%Graph{vertices: vertices, colors: colors} = graph, vertex, print) do
-    Enum.any? 1..colors, fn color ->
-      graph = %Graph{graph | vertices: put_elem(vertices, vertex, color)}
-      {result, _} = do_solve(graph, print)
-      result == :ok
-    end
+  def place(%Graph{colors: colors}, _vertex, color) when color > colors, do: false
+  def place(%Graph{vertices: vertices, colors: colors} = graph, vertex, color) do
+    new_graph = %Graph{graph | vertices: put_elem(vertices, vertex, color)}
+    solve(new_graph)
+    place(graph, vertex, color + 1)
   end
 
   defp find_first_empty(%Graph{vertices: vertices}) do
-    vertices = vertices |> Tuple.to_list
-    case Enum.find_index(vertices, &is_nil(&1)) do
-      nil -> {:error, :all_fulfilled}
-      index -> {:ok, index}
+    vertices
+    |> Tuple.to_list
+    |> Enum.find_index(&is_nil(&1))
+    |> case do
+      nil -> {:error, :filled}
+      vertex -> {:ok, vertex}
     end
   end
 end

@@ -1,8 +1,11 @@
 defmodule CSP.Application do
   @moduledoc false
 
+  import ExProf.Macro
+
   alias CSP.Counter
   alias CSP.GossipGirl
+  alias CSP.NQueens
   alias CSP.GraphColoring.Backtracking
   alias CSP.GraphColoring.ForwardChecking
   alias CSP.GraphColoring.Graph
@@ -13,10 +16,13 @@ defmodule CSP.Application do
 
     start_monitoring(opts)
 
-    case opts[:alg] do
-      "bt" -> Backtracking.solve(Graph.new(opts[:size]), opts[:print])
-      "fc" -> ForwardChecking.solve(Graph.new(opts[:size], true), opts[:print])
-    end
+    # records = profile do
+      case opts[:alg] do
+      "gcbt" -> Backtracking.solve(Graph.new(opts[:size]))
+      "gcfc" -> ForwardChecking.solve(Graph.new(opts[:size], true))
+      "nqbt" -> NQueens.solve(opts[:size])
+      end
+    # end
 
     IO.puts "Visited #{Counter.get(:calls)} nodes"
     IO.puts "Found #{Counter.get(:solutions)} solutions"
@@ -27,8 +33,8 @@ defmodule CSP.Application do
     Counter.start_link(:solutions)
 
     interval = case opts[:interval] do
-                 nil -> 5000
-                 val -> val * 1000
+                 nil -> 50
+                 val -> val * 10
                end
 
     GossipGirl.start_link([:calls, :solutions], interval)

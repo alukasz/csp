@@ -1,10 +1,7 @@
 defmodule CSP.NQueens do
   alias CSP.Counter
 
-  def solve(size) do
-    place([], 1, 1, size)
-  end
-
+  def solve(size), do: place([], 1, 1, size)
   defp solve([h | t], col, size) do
     Counter.increment(:calls)
 

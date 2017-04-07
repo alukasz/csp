@@ -9,7 +9,16 @@ defmodule CSP.GraphColoring.Graph do
     |> build_edges
     |> set_possible_colors
     |> build_allowed_colors(allowed_colors)
+    # |> build_neighbours
   end
+
+  # defp build_neighbours(%Graph{ size: size, edges: edges} = graph) do
+  #   neighbours = Tuple.duplicate([], size * size)
+
+  #   Enum.reduce 0..(size * size - 1), neighbours, fn vertex, neighbours ->
+  #     Enum.reduce find_neighbours(vertex), [], fn  end
+  #   end
+  # end
 
   def print(%Graph{vertices: vertices, size: size}) do
     vertices
@@ -22,10 +31,7 @@ defmodule CSP.GraphColoring.Graph do
   end
 
   def valid?(%Graph{vertices: vertices, edges: edges}) do
-    case do_valid(vertices, edges, MapSet.new, 0) do
-      true  -> {:ok, :valid}
-      false -> {:error, :invalid}
-    end
+    do_valid(vertices, edges, MapSet.new, 0)
   end
 
   def remove_allowed_color(%Graph{allowed_colors: allowed_colors} = graph, vertex, color) do
@@ -36,16 +42,33 @@ defmodule CSP.GraphColoring.Graph do
     %Graph{graph | allowed_colors: allowed_colors}
   end
 
+  # returns vertices
   def find_neighbours(%Graph{edges: edges}, vertex) do
     do_find_neighbours(edges, vertex)
   end
 
-  defp do_find_neighbours([], vertex), do: []
+  defp do_find_neighbours([], _), do: []
   defp do_find_neighbours([edge | edges], vertex) do
     case edge do
       {other, ^vertex} -> [other | do_find_neighbours(edges, vertex)]
       {^vertex, other} -> [other | do_find_neighbours(edges, vertex)]
       _ -> do_find_neighbours(edges, vertex)
+    end
+  end
+
+  # returns colors
+  def find_pairs_with(%Graph{vertices: vertices, edges: edges}, color) do
+    do_find_pairs_with(vertices, edges, color)
+  end
+
+  defp do_find_pairs_with(_, [], _color), do: []
+  defp do_find_pairs_with(vertices, [{v1, v2} | edges], color) do
+    case {elem(vertices, v1), elem(vertices, v2)}do
+      {other, ^color} when not is_nil(other)
+        -> [other | do_find_pairs_with(vertices, edges, color)]
+      {^color, other} when not is_nil(other)
+        -> [other | do_find_pairs_with(vertices, edges, color)]
+      _ -> do_find_pairs_with(vertices, edges, color)
     end
   end
 
