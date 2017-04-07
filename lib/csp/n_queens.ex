@@ -1,34 +1,28 @@
 defmodule CSP.NQueens do
+  alias CSP.Counter
+
   def solve(size) do
-    place([], 1, size, Tuple.duplicate(nil, size))
+    place([], 1, 1, size)
   end
 
-  defp do_solve([h | t], col, size, rows) do
-    with true <- valid?(t, h),
-         true <- not_finished?(col, size),
-         true <- place([h | t], col, size, rows)
-    do
-      true
-    else
-      false -> false # ?
-      # :finished -> IO.inspect board; false
-      :finished -> false
-    end
+  defp solve([h | t], col, size) do
+    Counter.increment(:calls)
+
+    valid?(h, t)
+      and (col <= size || Counter.increment(:solutions); true)
+      and place([h | t], col, 1, size)
   end
 
-  def not_finished?(col, size) when col <= size, do: true
-  def not_finished?(_, _), do: :finished
-
-  defp place(board, col, size, rows) do
-    Enum.any? 1..size, fn row ->
-      do_solve([{row, col} | board], col + 1, size, [row | rows])
-    end
+  defp place(_board, _col, row, size) when row > size, do: false
+  defp place(board, col, row, size) do
+      solve([{row, col} | board], col + 1, size)
+      place(board, col, row + 1, size)
   end
 
-  defp valid?([], _), do: true
-  defp valid?([{row, column} | _], {new_row, new_column})
+  defp valid?(_, []), do: true
+  defp valid?({new_row, new_column}, [{row, column} | _])
     when row == new_row or column == new_column, do: false
-  defp valid?([{row, column} | _], {new_row, new_column})
+  defp valid?({new_row, new_column}, [{row, column} | _])
     when abs(row - new_row) == abs(column - new_column), do: false
-  defp valid?([_ | tail], queen_position), do: valid?(tail, queen_position)
+  defp valid?(queen_position, [_ | tail]), do: valid?(queen_position, tail)
 end
