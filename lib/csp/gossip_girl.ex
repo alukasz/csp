@@ -18,11 +18,17 @@ defmodule CSP.GossipGirl do
   end
 
   def handle_info(:tell_everyone, %{processes: processes, interval: interval, counter: counter}) do
-    IO.puts "Elapsed approx. #{counter * interval / 1000} seconds"
-    Enum.each processes, fn counter ->
-      IO.puts "State of #{to_string(counter)} is #{Counter.get(counter)}"
-    end
-    IO.puts ""
+    # IO.puts "Elapsed approx. #{counter * interval / 1000} seconds"
+    # Enum.each processes, fn counter ->
+    #   IO.puts "State of #{to_string(counter)} is #{Counter.get(counter)}"
+    # end
+    # IO.puts ""
+
+    # time
+    # IO.puts to_string(counter * interval / 1000) <> "," <> to_string(Counter.get(:solutions))
+    # nodes
+    IO.puts to_string(counter * interval / 1000) <> "," <> to_string(Counter.get(:calls)) <> "," <> to_string(Counter.get(:solutions))
+
 
     Process.send_after(self(), :tell_everyone, interval)
     {:noreply, %{processes: processes, interval: interval, counter: counter + 1}}

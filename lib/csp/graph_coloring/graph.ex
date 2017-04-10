@@ -3,7 +3,7 @@ defmodule CSP.GraphColoring.Graph do
 
   defstruct vertices: nil, edges: [], allowed_colors: %{}, size: 0, colors: 0
 
-  def new(size, allowed_colors \\ false) do
+  def new(size, allowed_colors \\ true) do
     %Graph{size: size}
     |> build_vertices
     |> build_edges
