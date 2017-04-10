@@ -52,7 +52,7 @@ defmodule CSP.NQueens.Shared do
     remove_sw(state, col - 1, row + 1, size)
   end
   def remove_sw(state, col, row, size) do
-      remove_sw(remove_move(state, col, row, size), col - 1, row + 1, size)
+    remove_sw(remove_move(state, col, row, size), col - 1, row + 1, size)
   end
 
   def remove_ne(state, col, _row, size) when col >= size, do: state

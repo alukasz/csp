@@ -3,7 +3,7 @@ defmodule CSP.NQueens.Backtracking do
 
   alias CSP.Counter
 
-  def solve(size), do: place([], 0, 0, size, create_state(size))
+  def solve(size, heuristic), do: place([], 0, 0, size, create_state(size))
   def solve([h | t], col, size, state) do
     Counter.increment(:calls)
 
